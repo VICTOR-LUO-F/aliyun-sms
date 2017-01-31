@@ -1,6 +1,44 @@
 require 'aliyun/sms'
 describe Aliyun::Sms do
 
+  describe "#configure" do
+    before do
+      Aliyun::Sms.configure do |config|
+        config.access_key_secret = 'testsecret'
+        config.access_key_id = 'testid'
+        config.action = 'SingleSendSms'
+        config.format = 'XML'
+        config.region_id = 'cn-hangzhou'
+        config.sign_name = '标签测试'
+        config.signature_method = 'HMAC-SHA1'
+        config.signature_version = '1.0'
+        config.sms_version = '2016-09-27'
+      end
+    end
+
+    it "get query string through configurated itmes" do
+      config = Aliyun::Sms.configuration
+      method_input = {
+        'AccessKeyId' => config.access_key_id,
+        'Action' => config.action,
+        'Format' => config.format,
+        'ParamString' => '{"name":"d","name1":"d"}',
+        'RecNum' => '13098765432',
+        'RegionId' => config.region_id,
+        'SignName' => config.sign_name,
+        'SignatureMethod' => config.signature_method,
+        'SignatureNonce' => '9e030f6b-03a2-40f0-a6ba-157d44532fd0',
+        'SignatureVersion' => config.signature_version,
+        'TemplateCode' => 'SMS_1650053',
+        'Timestamp' => '2016-10-20T05:37:52Z',
+        'Version' => config.sms_version,
+        }
+
+      spect_output = 'AccessKeyId=testid&Action=SingleSendSms&Format=XML&ParamString={"name":"d","name1":"d"}&RecNum=13098765432&RegionId=cn-hangzhou&SignName=标签测试&SignatureMethod=HMAC-SHA1&SignatureNonce=9e030f6b-03a2-40f0-a6ba-157d44532fd0&SignatureVersion=1.0&TemplateCode=SMS_1650053&Timestamp=2016-10-20T05:37:52Z&Version=2016-09-27'
+
+      expect(Aliyun::Sms.query_string(method_input)).to eql(spect_output)
+    end
+  end
 
   it "get the query string" do
     method_input = {
