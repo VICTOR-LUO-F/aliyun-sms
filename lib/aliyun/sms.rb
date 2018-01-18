@@ -9,8 +9,7 @@ module Aliyun
   module Sms
     class Configuration
       attr_accessor :access_key_secret, :access_key_id, :action, :format, :region_id,
-                    :sign_name, :signature_method, :signature_version, :sms_version,
-                    :domain
+                    :sign_name, :signature_method, :signature_version, :sms_version
       def initialize
         @access_key_secret = ''
         @access_key_id = ''
@@ -21,7 +20,6 @@ module Aliyun
         @signature_method = ''
         @signature_version = ''
         @sms_version = ''
-        @domain = ''
       end
     end
 
@@ -41,14 +39,14 @@ module Aliyun
           'AccessKeyId' => configuration.access_key_id,
           'Action' => configuration.action,
           'Format' => configuration.format,
-          'PhoneNumbers' => mobile_num,
+          'ParamString' => message_param,
+          'RecNum' => mobile_num,
           'RegionId' => configuration.region_id,
           'SignName' => configuration.sign_name,
           'SignatureMethod' => configuration.signature_method,
           'SignatureNonce' => seed_signature_nonce,
           'SignatureVersion' => configuration.signature_version,
           'TemplateCode' => template_code,
-          'TemplateParam' => message_param,
           'Timestamp' => seed_timestamp,
           'Version' => configuration.sms_version,
         }
@@ -56,7 +54,7 @@ module Aliyun
 
       def send(mobile_num, template_code, message_param)
         sms_params = create_params(mobile_num, template_code, message_param)
-        Typhoeus.post(configuration.domain,
+        Typhoeus.post("https://sms.aliyuncs.com/",
                  headers: {'Content-Type'=> "application/x-www-form-urlencoded"},
                  body: post_body_data(configuration.access_key_secret, sms_params))
       end
@@ -64,11 +62,6 @@ module Aliyun
       # 原生参数拼接成请求字符串
       def query_string(params)
         qstring = ''
-
-        # Canonicalized Query String/使用请求参数构造规范化的请求字符串
-        # 按照参数名称的字典顺序对请求中所有的请求参数进行排序
-        params = params.sort.to_h
-
         params.each do |key, value|
           if qstring.empty?
             qstring += "#{key}=#{value}"
@@ -82,11 +75,6 @@ module Aliyun
       # 原生参数经过2次编码拼接成标准字符串
       def canonicalized_query_string(params)
         cqstring = ''
-
-        # Canonicalized Query String/使用请求参数构造规范化的请求字符串
-        # 按照参数名称的字典顺序对请求中所有的请求参数进行排序
-        params = params.sort.to_h
-
         params.each do |key, value|
           if cqstring.empty?
             cqstring += "#{encode(key)}=#{encode(value)}"
@@ -101,9 +89,8 @@ module Aliyun
       def sign(key_secret, params)
         key = key_secret + '&'
         signature = 'POST' + '&' + encode('/') + '&' + canonicalized_query_string(params)
-        digest = OpenSSL::Digest.new('sha1')
-        sign = Base64.encode64(OpenSSL::HMAC.digest(digest, key, signature))
-        encode(sign.chomp) # 通过chomp去掉最后的换行符 LF
+        sign = Base64.encode64("#{OpenSSL::HMAC.digest('sha1',key, signature)}")
+        encode(sign.chomp)  # 通过chomp去掉最后的换行符 LF
       end
 
       # 组成附带签名的 POST 方法的 BODY 请求字符串
