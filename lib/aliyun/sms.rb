@@ -54,22 +54,8 @@ module Aliyun
 
       def send(mobile_num, template_code, message_param)
         sms_params = create_params(mobile_num, template_code, message_param)
-        Typhoeus.post("https://sms.aliyuncs.com/",
-                 headers: {'Content-Type'=> "application/x-www-form-urlencoded"},
-                 body: post_body_data(configuration.access_key_secret, sms_params))
-      end
-
-      # 原生参数拼接成请求字符串
-      def query_string(params)
-        qstring = ''
-        params.each do |key, value|
-          if qstring.empty?
-            qstring += "#{key}=#{value}"
-          else
-            qstring += "&#{key}=#{value}"
-          end
-        end
-        return qstring
+        Typhoeus.get(configuration.domain,
+                 params: get_query_params(configuration.access_key_secret, sms_params))
       end
 
       # 原生参数经过2次编码拼接成标准字符串
@@ -82,25 +68,30 @@ module Aliyun
             cqstring += "&#{encode(key)}=#{encode(value)}"
           end
         end
-        return encode(cqstring)
+        return cqstring
       end
 
       # 生成数字签名
       def sign(key_secret, params)
         key = key_secret + '&'
-        signature = 'POST' + '&' + encode('/') + '&' + canonicalized_query_string(params)
-        sign = Base64.encode64("#{OpenSSL::HMAC.digest('sha1',key, signature)}")
-        encode(sign.chomp)  # 通过chomp去掉最后的换行符 LF
+        signature = 'GET' + '&' + encode('/') + '&' + encode(canonicalized_query_string(params))
+        digest = OpenSSL::Digest.new('sha1')
+        sign = Base64.encode64(OpenSSL::HMAC.digest(digest, key, signature))
+        encode(sign.chomp) # 通过chomp去掉最后的换行符 LF
       end
 
-      # 组成附带签名的 POST 方法的 BODY 请求字符串
-      def post_body_data(key_secret, params)
-        body_data = 'Signature=' + sign(key_secret, params) + '&' + query_string(params)
+      # 组成附带签名的 GET 方法的 QUERY 请求字符串
+      def get_query_params(key_secret, params)
+        query_params = 'Signature=' + sign(key_secret, params) + '&' + canonicalized_query_string(params)
       end
 
       # 对字符串进行 PERCENT 编码
       def encode(input)
         output = url_encode(input)
+        # useless replace, according to https://help.aliyun.com/document_detail/56189.html
+        output.gsub(/\+/, '%20')
+              .gsub(/\*/, '%2A')
+              .gsub(/%7E/, '~')
       end
 
       # 生成短信时间戳
