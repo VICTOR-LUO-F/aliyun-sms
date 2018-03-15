@@ -1,18 +1,47 @@
 require 'aliyun/sms'
 describe Aliyun::Sms do
 
+  describe "#top test" do
+    before do
+      Aliyun::Sms.configure do |config|
+        config.access_key_secret = 'testSecret'
+        config.access_key_id = 'testId'
+        config.action = 'SendSms'
+        config.format = 'XML'
+        config.region_id = 'cn-hangzhou'
+        config.sign_name = '阿里云短信测试专用'
+        config.signature_method = 'HMAC-SHA1'
+        config.signature_version = '1.0'
+        config.version = '2017-05-25'
+      end
+    end
+
+    it "get the http query url" do
+      user_params = {
+        'SignatureNonce' => '45e25e9b-0a6f-4070-8c85-2956eda1b466',
+        'TemplateCode' => 'SMS_71390007',
+        'Timestamp' => '2017-07-12T02:42:19Z',
+        'PhoneNumbers' =>	'15300000001',
+        'TemplateParam' => '{"customer":"test"}',
+        'OutId'	=> '123'
+      }
+      spect_output = 'http://dysmsapi.aliyuncs.com/?Signature=zJDF%2BLrzhj%2FThnlvIToysFRq6t4%3D&AccessKeyId=testId&Action=SendSms&Format=XML&OutId=123&PhoneNumbers=15300000001&RegionId=cn-hangzhou&SignName=%E9%98%BF%E9%87%8C%E4%BA%91%E7%9F%AD%E4%BF%A1%E6%B5%8B%E8%AF%95%E4%B8%93%E7%94%A8&SignatureMethod=HMAC-SHA1&SignatureNonce=45e25e9b-0a6f-4070-8c85-2956eda1b466&SignatureVersion=1.0&TemplateCode=SMS_71390007&TemplateParam=%7B%22customer%22%3A%22test%22%7D&Timestamp=2017-07-12T02%3A42%3A19Z&Version=2017-05-25'
+      expect(Aliyun::Sms.get_url(user_params)).to eql(spect_output)
+    end
+  end
+
   describe "#configure" do
     before do
       Aliyun::Sms.configure do |config|
-        config.access_key_secret = 'testsecret'
-        config.access_key_id = 'testid'
-        config.action = 'SingleSendSms'
+        config.access_key_secret = 'testSecret'
+        config.access_key_id = 'testId'
+        config.action = 'SendSms'
         config.format = 'XML'
         config.region_id = 'cn-hangzhou'
-        config.sign_name = '标签测试'
+        config.sign_name = '阿里云短信测试专用'
         config.signature_method = 'HMAC-SHA1'
         config.signature_version = '1.0'
-        config.sms_version = '2016-09-27'
+        config.version = '2017-05-25'
       end
     end
 
@@ -22,110 +51,101 @@ describe Aliyun::Sms do
         'AccessKeyId' => config.access_key_id,
         'Action' => config.action,
         'Format' => config.format,
-        'ParamString' => '{"name":"d","name1":"d"}',
-        'RecNum' => '13098765432',
         'RegionId' => config.region_id,
         'SignName' => config.sign_name,
         'SignatureMethod' => config.signature_method,
-        'SignatureNonce' => '9e030f6b-03a2-40f0-a6ba-157d44532fd0',
         'SignatureVersion' => config.signature_version,
-        'TemplateCode' => 'SMS_1650053',
-        'Timestamp' => '2016-10-20T05:37:52Z',
-        'Version' => config.sms_version,
-        }
+        'Version' => config.version,
+        'SignatureNonce' => '45e25e9b-0a6f-4070-8c85-2956eda1b466',
+        'TemplateCode' => 'SMS_71390007',
+        'Timestamp' => '2017-07-12T02:42:19Z',
+        'PhoneNumbers' =>	'15300000001',
+        'TemplateParam' => '{"customer":"test"}',
+        'OutId'	=> '123'
+      }
+      spect_output = 'AccessKeyId=testId&Action=SendSms&Format=XML&OutId=123&PhoneNumbers=15300000001&RegionId=cn-hangzhou&SignName=阿里云短信测试专用&SignatureMethod=HMAC-SHA1&SignatureNonce=45e25e9b-0a6f-4070-8c85-2956eda1b466&SignatureVersion=1.0&TemplateCode=SMS_71390007&TemplateParam={"customer":"test"}&Timestamp=2017-07-12T02:42:19Z&Version=2017-05-25'
 
-      spect_output = 'AccessKeyId=testid&Action=SingleSendSms&Format=XML&ParamString={"name":"d","name1":"d"}&RecNum=13098765432&RegionId=cn-hangzhou&SignName=标签测试&SignatureMethod=HMAC-SHA1&SignatureNonce=9e030f6b-03a2-40f0-a6ba-157d44532fd0&SignatureVersion=1.0&TemplateCode=SMS_1650053&Timestamp=2016-10-20T05:37:52Z&Version=2016-09-27'
-
-      expect(Aliyun::Sms.query_string(method_input)).to eql(spect_output)
+      expect(Aliyun::Sms.test_query_string(method_input)).to eql(spect_output)
     end
   end
 
-  it "get the query string" do
-    method_input = {
-        'AccessKeyId' => 'testid',
-        'Action' => 'SingleSendSms',
-        'Format' => 'XML',
-        'ParamString' => '{"name":"d","name1":"d"}',
-        'RecNum' => '13098765432',
-        'RegionId' => 'cn-hangzhou',
-        'SignName' => '标签测试',
-        'SignatureMethod' => 'HMAC-SHA1',
-        'SignatureNonce' => '9e030f6b-03a2-40f0-a6ba-157d44532fd0',
-        'SignatureVersion' => '1.0',
-        'TemplateCode' => 'SMS_1650053',
-        'Timestamp' => '2016-10-20T05:37:52Z',
-        'Version' => '2016-09-27',
-      }
-    spect_output = 'AccessKeyId=testid&Action=SingleSendSms&Format=XML&ParamString={"name":"d","name1":"d"}&RecNum=13098765432&RegionId=cn-hangzhou&SignName=标签测试&SignatureMethod=HMAC-SHA1&SignatureNonce=9e030f6b-03a2-40f0-a6ba-157d44532fd0&SignatureVersion=1.0&TemplateCode=SMS_1650053&Timestamp=2016-10-20T05:37:52Z&Version=2016-09-27'
+  describe "#params" do
+    before do
+      Aliyun::Sms.configure do |config|
+        config.access_key_secret = 'testSecret'
+        config.access_key_id = 'testId'
+        config.action = 'SendSms'
+        config.format = 'XML'
+        config.region_id = 'cn-hangzhou'
+        config.sign_name = '阿里云短信测试专用'
+        config.signature_method = 'HMAC-SHA1'
+        config.signature_version = '1.0'
+        config.version = '2017-05-25'
+      end
+    end
 
-    expect(Aliyun::Sms.query_string(method_input)).to eql(spect_output)
+    it "get query params string by merge configed params and user params" do
+      #config = Aliyun::Sms.configuration
+      user_params = {
+        'SignatureNonce' => '45e25e9b-0a6f-4070-8c85-2956eda1b466',
+        'TemplateCode' => 'SMS_71390007',
+        'Timestamp' => '2017-07-12T02:42:19Z',
+        'PhoneNumbers' =>	'15300000001',
+        'TemplateParam' => '{"customer":"test"}',
+        'OutId'	=> '123'
+      }
+
+      spect_output = 'AccessKeyId=testId&Action=SendSms&Format=XML&OutId=123&PhoneNumbers=15300000001&RegionId=cn-hangzhou&SignName=阿里云短信测试专用&SignatureMethod=HMAC-SHA1&SignatureNonce=45e25e9b-0a6f-4070-8c85-2956eda1b466&SignatureVersion=1.0&TemplateCode=SMS_71390007&TemplateParam={"customer":"test"}&Timestamp=2017-07-12T02:42:19Z&Version=2017-05-25'
+      get_params = Aliyun::Sms.get_params(user_params)
+      expect(Aliyun::Sms.test_query_string(get_params)).to eql(spect_output)
+    end
   end
 
   it "get the canonicalized query string" do
     method_input = {
-        'AccessKeyId' => 'testid',
-        'Action' => 'SingleSendSms',
-        'Format' => 'XML',
-        'ParamString' => '{"name":"d","name1":"d"}',
-        'RecNum' => '13098765432',
-        'RegionId' => 'cn-hangzhou',
-        'SignName' => '标签测试',
-        'SignatureMethod' => 'HMAC-SHA1',
-        'SignatureNonce' => '9e030f6b-03a2-40f0-a6ba-157d44532fd0',
-        'SignatureVersion' => '1.0',
-        'TemplateCode' => 'SMS_1650053',
-        'Timestamp' => '2016-10-20T05:37:52Z',
-        'Version' => '2016-09-27',
-      }
-    spect_output = 'AccessKeyId%3Dtestid%26Action%3DSingleSendSms%26Format%3DXML%26ParamString%3D%257B%2522name%2522%253A%2522d%2522%252C%2522name1%2522%253A%2522d%2522%257D%26RecNum%3D13098765432%26RegionId%3Dcn-hangzhou%26SignName%3D%25E6%25A0%2587%25E7%25AD%25BE%25E6%25B5%258B%25E8%25AF%2595%26SignatureMethod%3DHMAC-SHA1%26SignatureNonce%3D9e030f6b-03a2-40f0-a6ba-157d44532fd0%26SignatureVersion%3D1.0%26TemplateCode%3DSMS_1650053%26Timestamp%3D2016-10-20T05%253A37%253A52Z%26Version%3D2016-09-27'
+      'AccessKeyId' => 'testId',
+      'Action' => 'SendSms',
+      'Format' => 'XML',
+      'RegionId' => 'cn-hangzhou',
+      'SignName' => '阿里云短信测试专用',
+      'SignatureMethod' => 'HMAC-SHA1',
+      'SignatureVersion' => '1.0',
+      'Version' => '2017-05-25',
+      'SignatureNonce' => '45e25e9b-0a6f-4070-8c85-2956eda1b466',
+      'TemplateCode' => 'SMS_71390007',
+      'Timestamp' => '2017-07-12T02:42:19Z',
+      'PhoneNumbers' =>	'15300000001',
+      'TemplateParam' => '{"customer":"test"}',
+      'OutId'	=> '123'
+    }
+
+    spect_output = 'AccessKeyId=testId&Action=SendSms&Format=XML&OutId=123&PhoneNumbers=15300000001&RegionId=cn-hangzhou&SignName=%E9%98%BF%E9%87%8C%E4%BA%91%E7%9F%AD%E4%BF%A1%E6%B5%8B%E8%AF%95%E4%B8%93%E7%94%A8&SignatureMethod=HMAC-SHA1&SignatureNonce=45e25e9b-0a6f-4070-8c85-2956eda1b466&SignatureVersion=1.0&TemplateCode=SMS_71390007&TemplateParam=%7B%22customer%22%3A%22test%22%7D&Timestamp=2017-07-12T02%3A42%3A19Z&Version=2017-05-25'
 
     expect(Aliyun::Sms.canonicalized_query_string(method_input)).to eql(spect_output)
   end
 
   it "get sign" do
     params_input = {
-        'AccessKeyId' => 'testid',
-        'Action' => 'SingleSendSms',
-        'Format' => 'XML',
-        'ParamString' => '{"name":"d","name1":"d"}',
-        'RecNum' => '13098765432',
-        'RegionId' => 'cn-hangzhou',
-        'SignName' => '标签测试',
-        'SignatureMethod' => 'HMAC-SHA1',
-        'SignatureNonce' => '9e030f6b-03a2-40f0-a6ba-157d44532fd0',
-        'SignatureVersion' => '1.0',
-        'TemplateCode' => 'SMS_1650053',
-        'Timestamp' => '2016-10-20T05:37:52Z',
-        'Version' => '2016-09-27',
-      }
-    key = 'testsecret'
+      'AccessKeyId' => 'testId',
+      'Action' => 'SendSms',
+      'Format' => 'XML',
+      'RegionId' => 'cn-hangzhou',
+      'SignName' => '阿里云短信测试专用',
+      'SignatureMethod' => 'HMAC-SHA1',
+      'SignatureVersion' => '1.0',
+      'Version' => '2017-05-25',
+      'SignatureNonce' => '45e25e9b-0a6f-4070-8c85-2956eda1b466',
+      'TemplateCode' => 'SMS_71390007',
+      'Timestamp' => '2017-07-12T02:42:19Z',
+      'PhoneNumbers' =>	'15300000001',
+      'TemplateParam' => '{"customer":"test"}',
+      'OutId'	=> '123'
+    }
+    key = 'testSecret'
+    spect_output = 'zJDF%2BLrzhj%2FThnlvIToysFRq6t4%3D'
+    coded_params = 'AccessKeyId=testId&Action=SendSms&Format=XML&OutId=123&PhoneNumbers=15300000001&RegionId=cn-hangzhou&SignName=%E9%98%BF%E9%87%8C%E4%BA%91%E7%9F%AD%E4%BF%A1%E6%B5%8B%E8%AF%95%E4%B8%93%E7%94%A8&SignatureMethod=HMAC-SHA1&SignatureNonce=45e25e9b-0a6f-4070-8c85-2956eda1b466&SignatureVersion=1.0&TemplateCode=SMS_71390007&TemplateParam=%7B%22customer%22%3A%22test%22%7D&Timestamp=2017-07-12T02%3A42%3A19Z&Version=2017-05-25'
 
-    spect_output = 'ka8PDlV7S9sYqxEMRnmlBv%2FDoAE%3D'
-
-    expect(Aliyun::Sms.sign(key, params_input)).to eql(spect_output)
-  end
-
-  it "get post body data" do
-    params_input = {
-        'AccessKeyId' => 'testid',
-        'Action' => 'SingleSendSms',
-        'Format' => 'XML',
-        'ParamString' => '{"name":"d","name1":"d"}',
-        'RecNum' => '13098765432',
-        'RegionId' => 'cn-hangzhou',
-        'SignName' => '标签测试',
-        'SignatureMethod' => 'HMAC-SHA1',
-        'SignatureNonce' => '9e030f6b-03a2-40f0-a6ba-157d44532fd0',
-        'SignatureVersion' => '1.0',
-        'TemplateCode' => 'SMS_1650053',
-        'Timestamp' => '2016-10-20T05:37:52Z',
-        'Version' => '2016-09-27',
-      }
-    key = 'testsecret'
-
-    spect_output = 'Signature=ka8PDlV7S9sYqxEMRnmlBv%2FDoAE%3D&AccessKeyId=testid&Action=SingleSendSms&Format=XML&ParamString={"name":"d","name1":"d"}&RecNum=13098765432&RegionId=cn-hangzhou&SignName=标签测试&SignatureMethod=HMAC-SHA1&SignatureNonce=9e030f6b-03a2-40f0-a6ba-157d44532fd0&SignatureVersion=1.0&TemplateCode=SMS_1650053&Timestamp=2016-10-20T05:37:52Z&Version=2016-09-27'
-
-    expect(Aliyun::Sms.post_body_data(key, params_input)).to eql(spect_output)
+    expect(Aliyun::Sms.sign(key, coded_params)).to eql(spect_output)
   end
 
 end
