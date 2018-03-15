@@ -89,7 +89,13 @@ gem 'aliyun-sms', git: 'https://github.com/VICTOR-LUO-F/aliyun-sms.git'
 
 #### 第一步：
 
-    $ require 'aliyun/sms'
+```bash
+$ require 'aliyun/sms'
+```
+
+```bash
+=> true
+```
 
 #### 第二步：
 

@@ -1,7 +1,7 @@
 require "aliyun/sms/version"
 require "openssl"
 require "base64"
-require 'typhoeus/adapters/faraday'
+require 'typhoeus'
 require "erb"
 include ERB::Util
 
