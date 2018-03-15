@@ -82,7 +82,7 @@ require 'aliyun/sms'
 可以改为 Github 安装源，例如 Rails Gemfile 文件引用可以改为下面格式，即可正确安装。
 
 ```ruby
-gem 'aliyun-sms', git: 'https://github.com/VICTOR-LUO-F/aliyun-sms.git'
+gem 'aliyun-sms', '1.1.1', git: 'https://github.com/VICTOR-LUO-F/aliyun-sms.git'
 ```
 
 ## Usage 使用
@@ -128,7 +128,7 @@ $ Aliyun::Sms.configure do |config|
 发送短信：
 
     $ Aliyun::Sms.send(phone_numbers, template_code, template_param, out_id)
-    
+
 参数说明：
 
 1. phone_numbers： 接收短信的手机号，必须为字符型，例如 '1234567890'，如果有多个号码，中间用","隔开，例如：'1234567890,12388888888'；
@@ -158,7 +158,7 @@ Aliyun::Sms.configure do |config|
   config.version = '2017-05-25'                   # 服务版本，默认设置，不用修改
 end
 ```
-之后，重新启动 Rails，加载配置。 
+之后，重新启动 Rails，加载配置。
 
 #### 第二步：
 

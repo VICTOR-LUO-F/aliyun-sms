@@ -9,8 +9,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["VICTOR LUO"]
   spec.email         = ["victor-luo@outlook.com"]
 
-  spec.summary       = %q{A Ruby Gem for using aliyun sms service.}
-  spec.description   = %q{A Ruby Gem for using aliyun sms service.}
+  spec.summary       = %q{A Ruby Gem for using aliyun sms service, in accordance with aliyun sms 2017-05-25 version api. 适用于阿里云短信服务最新的 2017-05-25 版接口.}
+  spec.description   = %q{A Ruby Gem for using aliyun sms service, in accordance with aliyun sms 2017-05-25 version api. 适用于阿里云短信服务最新的 2017-05-25 版接口.}
   spec.homepage      = "https://github.com/VICTOR-LUO-F/aliyun-sms"
   spec.license       = "MIT"
 

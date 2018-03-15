@@ -75,7 +75,7 @@ If you get a error as follows, when running above command：
 You could switch to github resource, and modify the the Rails Gemfile to:
 
 ```ruby
-gem 'aliyun-sms', '1.1.0', git: 'https://github.com/VICTOR-LUO-F/aliyun-sms.git'
+gem 'aliyun-sms', '1.1.1', git: 'https://github.com/VICTOR-LUO-F/aliyun-sms.git'
 ```
 
 ## Usage
@@ -122,7 +122,7 @@ return
 Send message：
 
     $ Aliyun::Sms.send(phone_numbers, template_code, template_param, out_id)
-    
+
 Explanation：
 
 1. phone_numbers： the phone number, string type, such as '1234567890'. You can use multiple phone numbers devided by comma, such as '1234567890,12388888888'.
@@ -137,7 +137,7 @@ Explanation：
 
 In Rails direction 'config/initializers/', create file 'aliyun-sms.rb', and add code：           
 
-               
+
 config/initializers/aliyun-sms.rb
 
 ```ruby
@@ -153,7 +153,7 @@ Aliyun::Sms.configure do |config|
   config.version = '2017-05-25'                   # default value
 end
 ```
-then, restart Rails application。 
+then, restart Rails application。
 
 #### Second Step：
 
