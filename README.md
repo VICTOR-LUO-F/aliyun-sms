@@ -43,7 +43,7 @@ Add the following line in Gemfile :
 gem 'aliyun-sms'
 ```
 
-Then Run the following command:
+Then run the following command:
 
 ```ruby
 bundle
