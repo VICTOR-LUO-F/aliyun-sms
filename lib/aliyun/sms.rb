@@ -1,9 +1,9 @@
 require "aliyun/sms/version"
 require "openssl"
 require "base64"
-require 'typhoeus'
-require "erb"
-include ERB::Util
+require 'faraday'
+require 'cgi'
+require 'uri'
 
 module Aliyun
   module Sms
@@ -36,29 +36,27 @@ module Aliyun
       end
 
       def send(phone_numbers, template_code, template_param, out_id = '')
-        Typhoeus.get(get_url({
+        send_params = {
           'PhoneNumbers' => phone_numbers,
           'TemplateCode' => template_code,
           'TemplateParam' => template_param,
           'OutId'	=> out_id,
           'SignatureNonce' => seed_signature_nonce,
           'Timestamp' => seed_timestamp
-          }))
-      end
+        }
 
-      def get_url(user_params)
-        params = get_params(user_params)
-        coded_params = canonicalized_query_string(params)
-        key_secret = configuration.access_key_secret
-        url = 'http://dysmsapi.aliyuncs.com/?' + 'Signature=' + sign(key_secret, coded_params) + '&' + coded_params
+        Faraday.get('https://dysmsapi.aliyuncs.com', get_params(send_params))
       end
 
       def get_params(user_params)
         params = config_params.merge(user_params)
+        key_secret = configuration.access_key_secret
+        params['Signature'] = sign(key_secret, params)
+        params
       end
 
-      def config_params()
-        params ={
+      def config_params
+        {
           'AccessKeyId' => configuration.access_key_id,
           'Action' => configuration.action,
           'Format' => configuration.format,
@@ -70,29 +68,18 @@ module Aliyun
         }
       end
 
-      def canonicalized_query_string(params)
-        cqstring = ''
-        params.sort_by{|key, val| key}.each do |key, value|
-          if cqstring.empty?
-            cqstring += "#{encode(key)}=#{encode(value)}"
-          else
-            cqstring += "&#{encode(key)}=#{encode(value)}"
-          end
-        end
-        cqstring
-      end
-
       # 生成数字签名
-      def sign(key_secret, coded_params)
-        key = key_secret + '&'
-        signature = 'GET' + '&' + encode('/') + '&' +  encode(coded_params)
-        sign = Base64.encode64("#{OpenSSL::HMAC.digest('sha1',key, signature)}")
-        encode(sign.chomp)  # 通过chomp去掉最后的换行符 LF
+      def sign(key_secret, params)
+        str_to_sign = "GET&%2F&#{special_url_encode(URI.encode_www_form(params.sort.to_h))}"
+        special_url_encode(Base64.strict_encode64("#{OpenSSL::HMAC.digest('sha1', "#{key_secret}&", str_to_sign)}"))
       end
 
-      # 对字符串进行 PERCENT 编码
-      def encode(input)
-        output = url_encode(input)
+      # 对字符串进行 POP 编码
+      # 参考文档：https://help.aliyun.com/document_detail/101343.html?spm=a2c4g.11186623.6.627.79bb1089drq7U4
+      # 首先介绍下面会用到的特殊 URL 编码这个是 POP 特殊的一种规则，即在一般的 URLEncode 后再增加三种字符替换：
+      # 加号（+）替换成 %20、星号（*）替换成 %2A、%7E 替换回波浪号（~）
+      def special_url_encode(input)
+        CGI.escape(input).gsub('+', '%20').gsub('*', '%2A').gsub('%7E', '~')
       end
 
       # 生成短信时间戳
@@ -104,21 +91,6 @@ module Aliyun
       def seed_signature_nonce
         Time.now.utc.strftime("%Y%m%d%H%M%S%L")
       end
-
-      # 测试参数未编码时生成的字符串是否正确（多一道保险）
-      def test_query_string(params)
-        qstring = ''
-        params.sort_by{|key, val| key}.each do |key, value|
-          if qstring.empty?
-            qstring += "#{key}=#{value}"
-          else
-            qstring += "&#{key}=#{value}"
-          end
-        end
-        qstring
-      end
-
     end
-
   end
 end
