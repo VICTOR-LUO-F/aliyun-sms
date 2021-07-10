@@ -25,5 +25,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "rake"
   spec.add_development_dependency "rspec"
-  spec.add_dependency "typhoeus"
+  spec.add_dependency "faraday"
 end
