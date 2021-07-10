@@ -22,10 +22,10 @@ You might be using services other than aliyun-sms, but **this gem only for aliyu
 
 Before using aliyun-sms, you must apply and enable the aliyun-sms service, parameters as follows are **required**:
 
-1. ACCESS\_KEY\_SECRET：   apply it on aliyun console
-2. ACCESS\_KEY\_ID：       apply it on aliyun console
-3. SIGN\_NAME：            defined in aliyun-sms
-4. TEMPLATE\_CODE：        defined in aliyun-sms
+1. `ACCESS_KEY_SECRET`: apply it on aliyun console
+2. `ACCESS_KEY_ID`: apply it on aliyun console
+3. `SIGN_NAME`: defined in aliyun-sms
+4. `TEMPLATE_CODE`: defined in aliyun-sms
 
 ## Installation
 
